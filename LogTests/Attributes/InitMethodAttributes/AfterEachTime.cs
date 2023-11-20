@@ -1,8 +1,5 @@
-﻿using System;
+﻿namespace LogTests.Attributes.InitMethodAttributes;
 
-namespace LogTests.Attributes.InitMethodAttributes;
-
-[AttributeUsage(AttributeTargets.Method)]
-public class AfterEachTime : Attribute, IInitMethodAttribute
+public class AfterEachTime : InitMethodAttribute
 {
 }

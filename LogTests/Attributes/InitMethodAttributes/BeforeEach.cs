@@ -1,8 +1,5 @@
-﻿using System;
+﻿namespace LogTests.Attributes.InitMethodAttributes;
 
-namespace LogTests.Attributes.InitMethodAttributes;
-
-[AttributeUsage(AttributeTargets.Method)]
-public class BeforeEach : Attribute, IInitMethodAttribute
+public class BeforeEach : InitMethodAttribute
 {
 }
