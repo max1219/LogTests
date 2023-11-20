@@ -1,4 +1,6 @@
-﻿namespace LogTests.Operators.TestOperators;
+﻿using System;
+
+namespace LogTests.Operators.TestOperators;
 
 public class Throws<T> : IOperator where T : Exception
 {
