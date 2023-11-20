@@ -6,115 +6,129 @@ using LogTests.Attributes.InitMethodAttributes;
 
 namespace LogTests;
 
-
 internal static class Analyzer
 {
-    internal static (IEnumerable<(ITestAttribute, MethodBase)>, InitMethods) AnalyzeClass(Type classname)
+    // todo написать doc (добавив описание того, что у метода не может быть более одного тестового атрибута
+    // и не может быть сразу тестового и д-и атрибута
+    internal static (IEnumerable<(TestAttribute, MethodBase)> tests, InitMethods initMethods) AnalyzeClass(
+        Type classname)
     {
-        var collection = new List<(ITestAttribute, MethodBase)>();
+        List<(TestAttribute, MethodBase)> tests = new();
 
-        InitMethods initMethods = GetInitMethods(classname);
+        LinkedList<MethodBase> beforeAllMethods = new LinkedList<MethodBase>();
+        LinkedList<MethodBase> afterAllMethods = new LinkedList<MethodBase>();
+        LinkedList<MethodBase> beforeEachMethods = new LinkedList<MethodBase>();
+        LinkedList<MethodBase> afterEachMethods = new LinkedList<MethodBase>();
+        LinkedList<MethodBase> beforeEachTimeMethods = new LinkedList<MethodBase>();
+        LinkedList<MethodBase> afterEachTimeMethods = new LinkedList<MethodBase>();
+        MethodInfo[] methods = classname.GetMethods();
 
-        var methodsClass = classname.GetMethods();
-
-        foreach(var method in methodsClass)
+        foreach (MethodInfo method in methods)
         {
-            var attributes = method.CustomAttributes;
-
-            foreach(var attribute in attributes)
+            IEnumerable<Attribute> attributes = method.GetCustomAttributes();
+            foreach (Attribute attribute in attributes)
             {
-                var interfaces = attribute.AttributeType.GetInterfaces();
-
-                foreach(var interfacesType in interfaces)
+                if (attribute is TestAttribute testAttribute)
                 {
-                    if(interfacesType.Name.Equals(nameof(ITestAttribute)))
+                    tests.Add((testAttribute, method));
+                    break;
+                }
+
+                if (attribute is InitMethodAttribute initMethodAttribute)
+                {
+                    switch (initMethodAttribute)
                     {
-                        collection.Add(((ITestAttribute)attribute, method)!);
+                        case BeforeAll:
+                            beforeAllMethods.AddLast(method);
+                            break;
+                        case AfterAll:
+                            afterAllMethods.AddLast(method);
+                            break;
+                        case BeforeEach:
+                            beforeEachMethods.AddLast(method);
+                            break;
+                        case AfterEach:
+                            afterEachMethods.AddLast(method);
+                            break;
+                        case BeforeEachTime:
+                            beforeEachTimeMethods.AddLast(method);
+                            break;
+                        case AfterEachTime:
+                            afterEachTimeMethods.AddLast(method);
+                            break;
                     }
                 }
             }
         }
 
-        return (collection, initMethods);
+        InitMethods initMethods = new InitMethods(beforeAllMethods, afterAllMethods, beforeEachMethods,
+            afterEachMethods, beforeEachTimeMethods, afterEachTimeMethods);
+        return (tests, initMethods);
     }
 
-    internal static (ITestAttribute, InitMethods) AnalyzeTestMethod(MethodBase method)
+    internal static (TestAttribute, InitMethods) AnalyzeTestMethod(MethodBase method)
     {
-        var clazz = method.DeclaringType!;
+        Type declaringClass = method.DeclaringType!;
+        LinkedList<MethodBase> beforeAllMethods = new LinkedList<MethodBase>();
+        LinkedList<MethodBase> afterAllMethods = new LinkedList<MethodBase>();
+        LinkedList<MethodBase> beforeEachMethods = new LinkedList<MethodBase>();
+        LinkedList<MethodBase> afterEachMethods = new LinkedList<MethodBase>();
+        LinkedList<MethodBase> beforeEachTimeMethods = new LinkedList<MethodBase>();
+        LinkedList<MethodBase> afterEachTimeMethods = new LinkedList<MethodBase>();
 
-        InitMethods initMethods = GetInitMethods(clazz);
 
-        var attributes = method.CustomAttributes;
-
-        foreach(var attribute in attributes)
+        IEnumerable<Attribute> attributes = method.GetCustomAttributes();
+        TestAttribute? testAttribute = null;
+        foreach (Attribute attribute in attributes)
         {
-            bool isTestAttribute = false;
-
-            var interfaces = attribute.AttributeType.GetInterfaces();
-
-            foreach(var i in interfaces)
+            if (attribute is TestAttribute newTestAttribute)
             {
-                if(i.Name.Equals(typeof(ITestAttribute).Name))
+                testAttribute = newTestAttribute;
+            }
+        }
+
+        MethodInfo[] methods = declaringClass.GetMethods();
+
+        foreach (MethodInfo classMethod in methods)
+        {
+            attributes = classMethod.GetCustomAttributes();
+            foreach (Attribute attribute in attributes)
+            {
+                if (attribute is InitMethodAttribute initMethodAttribute)
                 {
-                    isTestAttribute = true;
+                    switch (initMethodAttribute)
+                    {
+                        case BeforeAll:
+                            beforeAllMethods.AddLast(classMethod);
+                            break;
+                        case AfterAll:
+                            afterAllMethods.AddLast(classMethod);
+                            break;
+                        case BeforeEach:
+                            beforeEachMethods.AddLast(classMethod);
+                            break;
+                        case AfterEach:
+                            afterEachMethods.AddLast(classMethod);
+                            break;
+                        case BeforeEachTime:
+                            beforeEachTimeMethods.AddLast(classMethod);
+                            break;
+                        case AfterEachTime:
+                            afterEachTimeMethods.AddLast(classMethod);
+                            break;
+                    }
                 }
             }
+        }
 
-            if(isTestAttribute)
-            {
-                return ((ITestAttribute)attribute, initMethods);
-            }
+        InitMethods initMethods = new InitMethods(beforeAllMethods, afterAllMethods, beforeEachMethods,
+            afterEachMethods, beforeEachTimeMethods, afterEachTimeMethods);
+
+        if (testAttribute is not null)
+        {
+            return (testAttribute, initMethods);
         }
 
         throw new ArgumentException("Method hasn't got test attributes");
-    }
-
-    private static InitMethods GetInitMethods(Type classname)
-    {
-        var beforeAll = new List<MethodBase>();
-        var afterAll = new List<MethodBase>();
-        var beforeEach = new List<MethodBase>();
-        var afterEach = new List<MethodBase>();
-        var beforeEachTime = new List<MethodBase>();
-        var afterEachTime = new List<MethodBase>();
-
-        var methodsClass = classname.GetMethods();
-
-        foreach(var method in methodsClass)
-        {
-            var attributes = method.CustomAttributes;
-
-            foreach(var at in attributes)
-            {
-                switch (at.AttributeType.Name)
-                {
-                    case nameof(BeforeAll):
-                        beforeAll.Add(method);
-                        break;
-
-                    case nameof(AfterAll):
-                        afterAll.Add(method);
-                        break;
-
-                    case nameof(BeforeEach):
-                        beforeEach.Add(method);
-                        break;
-
-                    case nameof(AfterEach):
-                        afterEach.Add(method);
-                        break;
-
-                    case nameof(BeforeEachTime):
-                        beforeEachTime.Add(method);
-                        break;
-
-                    case nameof(AfterEachTime):
-                        afterEachTime.Add(method);
-                        break;
-                }
-            }
-        }
-
-        return new InitMethods(beforeAll, afterAll, beforeEach, afterEach, beforeEachTime, afterEachTime);
     }
 }
