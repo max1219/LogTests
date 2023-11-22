@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace LogTests;
 
-internal class Initialyzer
+internal class Initializer
 {
     private readonly (IEnumerable<MethodBase> beforeAll, 
                       IEnumerable<MethodBase> afterAll, 
@@ -14,7 +14,7 @@ internal class Initialyzer
                       IEnumerable<MethodBase> afterEachTime) _initMethods;
     internal object TestClass { get; }
 
-    internal Initialyzer(Type t, 
+    internal Initializer(Type t, 
                          (IEnumerable<MethodBase> beforeAll,
                           IEnumerable<MethodBase> afterAll,
                           IEnumerable<MethodBase> beforeEach,
@@ -23,13 +23,7 @@ internal class Initialyzer
                           IEnumerable<MethodBase> afterEachTime) initMethods)
     {
         TestClass = Activator.CreateInstance(t)!;
-
-        _initMethods.beforeAll = initMethods.beforeAll;
-        _initMethods.afterAll = initMethods.afterAll;
-        _initMethods.beforeEach = initMethods.beforeEach;
-        _initMethods.afterEach = initMethods.afterEach;
-        _initMethods.beforeEachTime = initMethods.beforeEachTime;
-        _initMethods.afterEachTime = initMethods.afterEachTime;
+        _initMethods = initMethods; 
     }
 
     internal void UseBeforeAll()
