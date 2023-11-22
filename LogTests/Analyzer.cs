@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using LogTests.Attributes;
+using LogTests.Attributes.TestAttributes;
 using LogTests.Attributes.InitMethodAttributes;
 
 namespace LogTests;
@@ -10,18 +10,24 @@ internal static class Analyzer
 {
     // todo написать doc (добавив описание того, что у метода не может быть более одного тестового атрибута
     // и не может быть сразу тестового и д-и атрибута
-    internal static (IEnumerable<(TestAttribute, MethodBase)> tests, InitMethods initMethods) AnalyzeClass(
-        Type classname)
+    internal static (IEnumerable<(TestAttribute, MethodBase)> tests, 
+                      (IEnumerable<MethodBase> beforeAll,
+                       IEnumerable<MethodBase> afterAll,
+                       IEnumerable<MethodBase> beforeEach,
+                       IEnumerable<MethodBase> afterEach,
+                       IEnumerable<MethodBase> beforeEachTime,
+                       IEnumerable<MethodBase> afterEachTime) initMethods) AnalyzeClass(Type classType)
     {
         List<(TestAttribute, MethodBase)> tests = new();
 
-        LinkedList<MethodBase> beforeAllMethods = new LinkedList<MethodBase>();
-        LinkedList<MethodBase> afterAllMethods = new LinkedList<MethodBase>();
-        LinkedList<MethodBase> beforeEachMethods = new LinkedList<MethodBase>();
-        LinkedList<MethodBase> afterEachMethods = new LinkedList<MethodBase>();
-        LinkedList<MethodBase> beforeEachTimeMethods = new LinkedList<MethodBase>();
-        LinkedList<MethodBase> afterEachTimeMethods = new LinkedList<MethodBase>();
-        MethodInfo[] methods = classname.GetMethods();
+        (IEnumerable<MethodBase> beforeAll,
+         IEnumerable<MethodBase> afterAll,
+         IEnumerable<MethodBase> beforeEach,
+         IEnumerable<MethodBase> afterEach,
+         IEnumerable<MethodBase> beforeEachTime,
+         IEnumerable<MethodBase> afterEachTime) initMethods = GetInitMethods(classType);
+
+        MethodInfo[] methods = classType.GetMethods();
 
         foreach (MethodInfo method in methods)
         {
@@ -33,7 +39,73 @@ internal static class Analyzer
                     tests.Add((testAttribute, method));
                     break;
                 }
+            }
+        }
 
+        return (tests, initMethods);
+    }
+
+    internal static (TestAttribute, 
+                      (IEnumerable<MethodBase> beforeAll,
+                       IEnumerable<MethodBase> afterAll,
+                       IEnumerable<MethodBase> beforeEach,
+                       IEnumerable<MethodBase> afterEach,
+                       IEnumerable<MethodBase> beforeEachTime,
+                       IEnumerable<MethodBase> afterEachTime)) AnalyzeTestMethod(MethodBase method)
+    {
+        IEnumerable<Attribute> attributes = method.GetCustomAttributes();
+
+        TestAttribute? testAttribute = null;
+        
+        foreach (Attribute attribute in attributes)
+        {
+            if (attribute is TestAttribute newTestAttribute)
+            {
+                testAttribute = newTestAttribute;
+                break;
+            }
+        }
+
+        if (testAttribute is not null)
+        {
+            Type declaringClass = method.DeclaringType!;
+
+            (IEnumerable<MethodBase> beforeAll,
+             IEnumerable<MethodBase> afterAll,
+             IEnumerable<MethodBase> beforeEach,
+             IEnumerable<MethodBase> afterEach,
+             IEnumerable<MethodBase> beforeEachTime,
+             IEnumerable<MethodBase> afterEachTime) initMethods = GetInitMethods(declaringClass);
+
+            return (testAttribute, initMethods);
+        }
+
+        throw new ArgumentException("Method hasn't got test attributes");
+    }
+
+
+    private static (IEnumerable<MethodBase> beforeAll,
+                    IEnumerable<MethodBase> afterAll,
+                    IEnumerable<MethodBase> beforeEach,
+                    IEnumerable<MethodBase> afterEach,
+                    IEnumerable<MethodBase> beforeEachTime,
+                    IEnumerable<MethodBase> afterEachTime) GetInitMethods(Type classType)
+    {
+        LinkedList<MethodBase> beforeAllMethods = new LinkedList<MethodBase>();
+        LinkedList<MethodBase> afterAllMethods = new LinkedList<MethodBase>();
+        LinkedList<MethodBase> beforeEachMethods = new LinkedList<MethodBase>();
+        LinkedList<MethodBase> afterEachMethods = new LinkedList<MethodBase>();
+        LinkedList<MethodBase> beforeEachTimeMethods = new LinkedList<MethodBase>();
+        LinkedList<MethodBase> afterEachTimeMethods = new LinkedList<MethodBase>();
+
+        MethodInfo[] methods = classType.GetMethods();
+
+        foreach (MethodInfo method in methods)
+        {
+            IEnumerable<Attribute> attributes = method.GetCustomAttributes();
+
+            foreach (Attribute attribute in attributes)
+            {
                 if (attribute is InitMethodAttribute initMethodAttribute)
                 {
                     switch (initMethodAttribute)
@@ -61,74 +133,6 @@ internal static class Analyzer
             }
         }
 
-        InitMethods initMethods = new InitMethods(beforeAllMethods, afterAllMethods, beforeEachMethods,
-            afterEachMethods, beforeEachTimeMethods, afterEachTimeMethods);
-        return (tests, initMethods);
-    }
-
-    internal static (TestAttribute, InitMethods) AnalyzeTestMethod(MethodBase method)
-    {
-        Type declaringClass = method.DeclaringType!;
-        LinkedList<MethodBase> beforeAllMethods = new LinkedList<MethodBase>();
-        LinkedList<MethodBase> afterAllMethods = new LinkedList<MethodBase>();
-        LinkedList<MethodBase> beforeEachMethods = new LinkedList<MethodBase>();
-        LinkedList<MethodBase> afterEachMethods = new LinkedList<MethodBase>();
-        LinkedList<MethodBase> beforeEachTimeMethods = new LinkedList<MethodBase>();
-        LinkedList<MethodBase> afterEachTimeMethods = new LinkedList<MethodBase>();
-
-
-        IEnumerable<Attribute> attributes = method.GetCustomAttributes();
-        TestAttribute? testAttribute = null;
-        foreach (Attribute attribute in attributes)
-        {
-            if (attribute is TestAttribute newTestAttribute)
-            {
-                testAttribute = newTestAttribute;
-            }
-        }
-
-        MethodInfo[] methods = declaringClass.GetMethods();
-
-        foreach (MethodInfo classMethod in methods)
-        {
-            attributes = classMethod.GetCustomAttributes();
-            foreach (Attribute attribute in attributes)
-            {
-                if (attribute is InitMethodAttribute initMethodAttribute)
-                {
-                    switch (initMethodAttribute)
-                    {
-                        case BeforeAll:
-                            beforeAllMethods.AddLast(classMethod);
-                            break;
-                        case AfterAll:
-                            afterAllMethods.AddLast(classMethod);
-                            break;
-                        case BeforeEach:
-                            beforeEachMethods.AddLast(classMethod);
-                            break;
-                        case AfterEach:
-                            afterEachMethods.AddLast(classMethod);
-                            break;
-                        case BeforeEachTime:
-                            beforeEachTimeMethods.AddLast(classMethod);
-                            break;
-                        case AfterEachTime:
-                            afterEachTimeMethods.AddLast(classMethod);
-                            break;
-                    }
-                }
-            }
-        }
-
-        InitMethods initMethods = new InitMethods(beforeAllMethods, afterAllMethods, beforeEachMethods,
-            afterEachMethods, beforeEachTimeMethods, afterEachTimeMethods);
-
-        if (testAttribute is not null)
-        {
-            return (testAttribute, initMethods);
-        }
-
-        throw new ArgumentException("Method hasn't got test attributes");
+        return (beforeAllMethods, afterAllMethods, beforeEachMethods, afterEachMethods, beforeEachTimeMethods, afterEachTimeMethods);
     }
 }
