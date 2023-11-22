@@ -12,7 +12,7 @@ internal class Initializer
                       IEnumerable<MethodBase> afterEach, 
                       IEnumerable<MethodBase> beforeEachTime, 
                       IEnumerable<MethodBase> afterEachTime) _initMethods;
-    internal object TestClass { get; }
+    internal object Instance { get; }
 
     internal Initializer(Type t, 
                          (IEnumerable<MethodBase> beforeAll,
@@ -22,7 +22,7 @@ internal class Initializer
                           IEnumerable<MethodBase> beforeEachTime,
                           IEnumerable<MethodBase> afterEachTime) initMethods)
     {
-        TestClass = Activator.CreateInstance(t)!;
+        Instance = Activator.CreateInstance(t)!;
         _initMethods = initMethods; 
     }
 
@@ -30,7 +30,7 @@ internal class Initializer
     {
         foreach (MethodBase method in _initMethods.beforeAll)
         {
-            method.Invoke(TestClass, parameters: null);
+            method.Invoke(Instance, parameters: null);
         }
     }
 
@@ -38,7 +38,7 @@ internal class Initializer
     {
         foreach (MethodBase method in _initMethods.afterAll)
         {
-            method.Invoke(TestClass, parameters: null);
+            method.Invoke(Instance, parameters: null);
         }
     }
 
@@ -46,7 +46,7 @@ internal class Initializer
     {
         foreach (MethodBase method in _initMethods.beforeEach)
         {
-            method.Invoke(TestClass, parameters: null);
+            method.Invoke(Instance, parameters: null);
         }
     }
 
@@ -54,7 +54,7 @@ internal class Initializer
     {
         foreach (MethodBase method in _initMethods.afterEach)
         {
-            method.Invoke(TestClass, parameters: null);
+            method.Invoke(Instance, parameters: null);
         }
     }
 
@@ -62,7 +62,7 @@ internal class Initializer
     {
         foreach (MethodBase method in _initMethods.beforeEachTime)
         {
-            method.Invoke(TestClass, parameters: null);
+            method.Invoke(Instance, parameters: null);
         }
     }
 
@@ -70,7 +70,7 @@ internal class Initializer
     {
         foreach (MethodBase method in _initMethods.afterEachTime)
         {
-            method.Invoke(TestClass, parameters: null);
+            method.Invoke(Instance, parameters: null);
         }
     }
 }
