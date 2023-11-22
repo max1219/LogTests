@@ -18,9 +18,9 @@ public class Tester
         return _results.All(tuple => tuple.result is null);
     }
 
-    internal IEnumerable<(string? result, IOperator @operator)> GetWrong()
+    internal IEnumerable<(string result, IOperator @operator)> GetWrong()
     {
-        return _results.Where(tuple => tuple.result is not null);
+        return _results.Where(tuple => tuple.result is not null)!;
     }
 
     public void Check(IOperator @operator)
