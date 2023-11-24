@@ -13,7 +13,7 @@ public class False : IOperator
     {
         if (!_condition)
             return null;
-        return "Fail False";
+        return "[Fail False]";
     }
 
     public override string ToString()

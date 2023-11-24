@@ -15,7 +15,7 @@ public class Equals : IOperator
     {
         if (_expected.Equals(_actual))
             return null;
-        return $"Fail Equals: expected {_expected}, actual {_actual}";
+        return $"[Fail Equals: expected {_expected}, actual {_actual}]";
     }
 
     public override string ToString()

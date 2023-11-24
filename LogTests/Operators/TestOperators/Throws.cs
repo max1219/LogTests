@@ -23,7 +23,7 @@ public class Throws<T> : IOperator where T : Exception
         }
         catch (Exception e)
         {
-            return $"Fail Throws: expected {typeof(T)}, actual {e.GetType()}";
+            return $"[Fail Throws: expected {typeof(T)}, actual {e.GetType()}]";
         }
 
         return $"Fail Throws({typeof(T)})";

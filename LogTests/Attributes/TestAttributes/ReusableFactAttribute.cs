@@ -43,7 +43,7 @@ public class ReusableFactAttribute : TestAttribute
             .First();
 
         string result =
-            $"Fail ReusableFact: required {_requiredSuccessCount}, " +
+            $"Fail ReusableFact ({method.Name}): required {_requiredSuccessCount}, " +
             $"actual {successCount} success count, " +
             $"most common fail {mostCommonResult.Key} ({mostCommonResult.Count()} times)";
         return result;

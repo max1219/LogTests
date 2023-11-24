@@ -17,7 +17,7 @@ public class FactAttribute : TestAttribute
             return null;
         }
 
-        string result = "Fail Fact: " + String.Concat(tester.GetWrong().Select(tuple => tuple.result), ", ");
+        string result = $"Fail Fact ({method.Name}): " + String.Join("; ", tester.GetWrong().Select(tuple => tuple.result)).ToString();
         return result;
     }
 }
