@@ -68,7 +68,7 @@ public class Runner
             initializer.UseBeforeEachTime, initializer.UseAfterEachTime);
         initializer.UseAfterEach();
         tester.Clear();
-        
+
         if (result is not null)
         {
             OnFailTest.Invoke(this, new OnFailEventArgs(result));

@@ -6,24 +6,25 @@ namespace LogTests;
 
 internal class Initializer
 {
-    private readonly (IEnumerable<MethodBase> beforeAll, 
-                      IEnumerable<MethodBase> afterAll, 
-                      IEnumerable<MethodBase> beforeEach, 
-                      IEnumerable<MethodBase> afterEach, 
-                      IEnumerable<MethodBase> beforeEachTime, 
-                      IEnumerable<MethodBase> afterEachTime) _initMethods;
+    private readonly (IEnumerable<MethodBase> beforeAll,
+        IEnumerable<MethodBase> afterAll,
+        IEnumerable<MethodBase> beforeEach,
+        IEnumerable<MethodBase> afterEach,
+        IEnumerable<MethodBase> beforeEachTime,
+        IEnumerable<MethodBase> afterEachTime) _initMethods;
+
     internal object Instance { get; }
 
-    internal Initializer(Type t, 
-                         (IEnumerable<MethodBase> beforeAll,
-                          IEnumerable<MethodBase> afterAll,
-                          IEnumerable<MethodBase> beforeEach,
-                          IEnumerable<MethodBase> afterEach,
-                          IEnumerable<MethodBase> beforeEachTime,
-                          IEnumerable<MethodBase> afterEachTime) initMethods)
+    internal Initializer(Type t,
+        (IEnumerable<MethodBase> beforeAll,
+            IEnumerable<MethodBase> afterAll,
+            IEnumerable<MethodBase> beforeEach,
+            IEnumerable<MethodBase> afterEach,
+            IEnumerable<MethodBase> beforeEachTime,
+            IEnumerable<MethodBase> afterEachTime) initMethods)
     {
         Instance = Activator.CreateInstance(t)!;
-        _initMethods = initMethods; 
+        _initMethods = initMethods;
     }
 
     internal void UseBeforeAll()

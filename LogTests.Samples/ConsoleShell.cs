@@ -1,5 +1,4 @@
-﻿
-using LogTests;
+﻿using LogTests;
 
 void OnTestFail(OnFailEventArgs args)
 {

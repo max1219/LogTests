@@ -6,7 +6,8 @@ namespace LogTests.Attributes.TestAttributes;
 
 public class FactAttribute : TestAttribute
 {
-    internal override string? Test(object instance, MethodBase method, Tester tester, Action useBeforeEachTime, Action useAfterEachTime)
+    internal override string? Test(object instance, MethodBase method, Tester tester, Action useBeforeEachTime,
+        Action useAfterEachTime)
     {
         useBeforeEachTime.Invoke();
         method.Invoke(instance, new object?[] { tester });
@@ -14,8 +15,9 @@ public class FactAttribute : TestAttribute
         if (tester.IsAllSuccess())
         {
             return null;
-        } 
-        string result = "Fail Fact: " +  String.Concat(tester.GetWrong().Select(tuple => tuple.result), ", ");
+        }
+
+        string result = "Fail Fact: " + String.Concat(tester.GetWrong().Select(tuple => tuple.result), ", ");
         return result;
     }
 }

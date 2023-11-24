@@ -21,12 +21,7 @@ internal static class Analyzer
     {
         List<(TestAttribute, MethodBase)> tests = new();
 
-        (IEnumerable<MethodBase> beforeAll,
-            IEnumerable<MethodBase> afterAll,
-            IEnumerable<MethodBase> beforeEach,
-            IEnumerable<MethodBase> afterEach,
-            IEnumerable<MethodBase> beforeEachTime,
-            IEnumerable<MethodBase> afterEachTime) initMethods = GetInitMethods(classType);
+        var initMethods = GetInitMethods(classType);
 
         MethodInfo[] methods = classType.GetMethods();
 
@@ -68,21 +63,16 @@ internal static class Analyzer
             }
         }
 
-        if (testAttribute is not null)
+        if (testAttribute is null)
         {
-            Type declaringClass = method.DeclaringType!;
-
-            (IEnumerable<MethodBase> beforeAll,
-                IEnumerable<MethodBase> afterAll,
-                IEnumerable<MethodBase> beforeEach,
-                IEnumerable<MethodBase> afterEach,
-                IEnumerable<MethodBase> beforeEachTime,
-                IEnumerable<MethodBase> afterEachTime) initMethods = GetInitMethods(declaringClass);
-
-            return (testAttribute, initMethods);
+            throw new ArgumentException("Method hasn't got test attributes");
         }
 
-        throw new ArgumentException("Method hasn't got test attributes");
+        Type declaringClass = method.DeclaringType!;
+
+        var initMethods = GetInitMethods(declaringClass);
+
+        return (testAttribute, initMethods);
     }
 
 

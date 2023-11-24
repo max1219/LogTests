@@ -10,7 +10,7 @@ public class Throws<T> : IOperator where T : Exception
     {
         _action = action;
     }
-    
+
     public string? Check()
     {
         try

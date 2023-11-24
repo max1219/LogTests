@@ -17,6 +17,7 @@ public class Not : IOperator
         {
             return null;
         }
+
         return "Fail Not";
     }
 

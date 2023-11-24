@@ -8,7 +8,7 @@ public class True : IOperator
     {
         _condition = condition;
     }
-    
+
     public string? Check()
     {
         if (_condition)
