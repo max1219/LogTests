@@ -10,22 +10,23 @@ internal static class Analyzer
 {
     // todo написать doc (добавив описание того, что у метода не может быть более одного тестового атрибута
     // и не может быть сразу тестового и д-и атрибута
-    internal static (IEnumerable<(TestAttribute, MethodBase)> tests, 
-                      (IEnumerable<MethodBase> beforeAll,
-                       IEnumerable<MethodBase> afterAll,
-                       IEnumerable<MethodBase> beforeEach,
-                       IEnumerable<MethodBase> afterEach,
-                       IEnumerable<MethodBase> beforeEachTime,
-                       IEnumerable<MethodBase> afterEachTime) initMethods) AnalyzeClass(Type classType)
+    internal static (IEnumerable<(TestAttribute, MethodBase)> tests,
+        (IEnumerable<MethodBase> beforeAll,
+        IEnumerable<MethodBase> afterAll,
+        IEnumerable<MethodBase> beforeEach,
+        IEnumerable<MethodBase> afterEach,
+        IEnumerable<MethodBase> beforeEachTime,
+        IEnumerable<MethodBase> afterEachTime) initMethods)
+        AnalyzeClass(Type classType)
     {
         List<(TestAttribute, MethodBase)> tests = new();
 
         (IEnumerable<MethodBase> beforeAll,
-         IEnumerable<MethodBase> afterAll,
-         IEnumerable<MethodBase> beforeEach,
-         IEnumerable<MethodBase> afterEach,
-         IEnumerable<MethodBase> beforeEachTime,
-         IEnumerable<MethodBase> afterEachTime) initMethods = GetInitMethods(classType);
+            IEnumerable<MethodBase> afterAll,
+            IEnumerable<MethodBase> beforeEach,
+            IEnumerable<MethodBase> afterEach,
+            IEnumerable<MethodBase> beforeEachTime,
+            IEnumerable<MethodBase> afterEachTime) initMethods = GetInitMethods(classType);
 
         MethodInfo[] methods = classType.GetMethods();
 
@@ -45,18 +46,19 @@ internal static class Analyzer
         return (tests, initMethods);
     }
 
-    internal static (TestAttribute, 
-                      (IEnumerable<MethodBase> beforeAll,
-                       IEnumerable<MethodBase> afterAll,
-                       IEnumerable<MethodBase> beforeEach,
-                       IEnumerable<MethodBase> afterEach,
-                       IEnumerable<MethodBase> beforeEachTime,
-                       IEnumerable<MethodBase> afterEachTime)) AnalyzeTestMethod(MethodBase method)
+    internal static (TestAttribute,
+        (IEnumerable<MethodBase> beforeAll,
+        IEnumerable<MethodBase> afterAll,
+        IEnumerable<MethodBase> beforeEach,
+        IEnumerable<MethodBase> afterEach,
+        IEnumerable<MethodBase> beforeEachTime,
+        IEnumerable<MethodBase> afterEachTime))
+        AnalyzeTestMethod(MethodBase method)
     {
         IEnumerable<Attribute> attributes = method.GetCustomAttributes();
 
         TestAttribute? testAttribute = null;
-        
+
         foreach (Attribute attribute in attributes)
         {
             if (attribute is TestAttribute newTestAttribute)
@@ -71,11 +73,11 @@ internal static class Analyzer
             Type declaringClass = method.DeclaringType!;
 
             (IEnumerable<MethodBase> beforeAll,
-             IEnumerable<MethodBase> afterAll,
-             IEnumerable<MethodBase> beforeEach,
-             IEnumerable<MethodBase> afterEach,
-             IEnumerable<MethodBase> beforeEachTime,
-             IEnumerable<MethodBase> afterEachTime) initMethods = GetInitMethods(declaringClass);
+                IEnumerable<MethodBase> afterAll,
+                IEnumerable<MethodBase> beforeEach,
+                IEnumerable<MethodBase> afterEach,
+                IEnumerable<MethodBase> beforeEachTime,
+                IEnumerable<MethodBase> afterEachTime) initMethods = GetInitMethods(declaringClass);
 
             return (testAttribute, initMethods);
         }
@@ -85,11 +87,12 @@ internal static class Analyzer
 
 
     private static (IEnumerable<MethodBase> beforeAll,
-                    IEnumerable<MethodBase> afterAll,
-                    IEnumerable<MethodBase> beforeEach,
-                    IEnumerable<MethodBase> afterEach,
-                    IEnumerable<MethodBase> beforeEachTime,
-                    IEnumerable<MethodBase> afterEachTime) GetInitMethods(Type classType)
+        IEnumerable<MethodBase> afterAll,
+        IEnumerable<MethodBase> beforeEach,
+        IEnumerable<MethodBase> afterEach,
+        IEnumerable<MethodBase> beforeEachTime,
+        IEnumerable<MethodBase> afterEachTime)
+        GetInitMethods(Type classType)
     {
         LinkedList<MethodBase> beforeAllMethods = new LinkedList<MethodBase>();
         LinkedList<MethodBase> afterAllMethods = new LinkedList<MethodBase>();
@@ -133,6 +136,7 @@ internal static class Analyzer
             }
         }
 
-        return (beforeAllMethods, afterAllMethods, beforeEachMethods, afterEachMethods, beforeEachTimeMethods, afterEachTimeMethods);
+        return (beforeAllMethods, afterAllMethods, beforeEachMethods, afterEachMethods, beforeEachTimeMethods,
+            afterEachTimeMethods);
     }
 }
