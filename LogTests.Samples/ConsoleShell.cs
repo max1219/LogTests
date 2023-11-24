@@ -1,10 +1,13 @@
 ﻿using LogTests;
+using LogTests.Samples;
 
-void OnTestFail(OnFailEventArgs args)
+void OnTestFail(object? invoker, OnFailEventArgs args)
 {
     Console.WriteLine(args.Message);
 }
 
 Runner runner = new Runner();
+runner.OnFailTest += OnTestFail;
 
-//runner.TestClass(*SomeType*);
+Type type = typeof(MathTests);
+runner.TestClass(type);
