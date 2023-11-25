@@ -96,4 +96,15 @@ public class MathTests
                 new Equals(4, 4)));
         tester.Check(@operator);
     }
+
+    [Fact]
+    public void ThrowsTest(Tester tester)
+    {
+        int one = 1;
+        int zero = 0;
+        IOperator @operator = new And(
+            new True(false),
+            new Throws<DivideByZeroException>(() => _ = one / zero));
+        tester.Check(@operator);
+    }
 }

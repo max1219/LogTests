@@ -11,3 +11,6 @@ runner.OnFailTest += OnTestFail;
 
 Type type = typeof(MathTests);
 runner.TestClass(type);
+
+Type t = typeof(ReusableAttributeTests);
+runner.TestClass(t);
