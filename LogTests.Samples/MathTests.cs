@@ -102,9 +102,19 @@ public class MathTests
     {
         int one = 1;
         int zero = 0;
-        IOperator @operator = new And(
-            new True(false),
-            new Throws<DivideByZeroException>(() => _ = one / zero));
+        IOperator @operator = new Throws<DivideByZeroException>(() => _ = one / zero);
+        tester.Check(@operator);
+    }
+
+    [Fact]
+    // 2 wrongs
+    public void WrongThrowsTest(Tester tester)
+    {
+        int one = 1;
+        int zero = 0;
+        IOperator @operator = new Throws<OperationCanceledException>(() => _ = one / zero);
+        tester.Check(@operator);
+        @operator = new Throws<OperationCanceledException>(() => _ = one / one);
         tester.Check(@operator);
     }
 }
