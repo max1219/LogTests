@@ -2,7 +2,7 @@
 
 namespace LogTests.Attributes.InitMethodAttributes;
 
-[AttributeUsage(AttributeTargets.Method)]
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public abstract class InitMethodAttribute : Attribute
-{
+{ 
 }
