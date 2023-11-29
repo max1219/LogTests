@@ -10,8 +10,6 @@ public class Runner
 {
     public event EventHandler<OnFailEventArgs> OnFailTest;
 
-    // todo написать doc про наличие конструктора по умолчанию
-    // todo обновить uml добавив передачу чего то, за что дергать BET и AET в ITestAttribute
     public void TestClass(Type classType)
     {
         (IEnumerable<(TestAttribute, MethodBase)> tests,

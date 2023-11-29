@@ -8,8 +8,6 @@ namespace LogTests;
 
 internal static class Analyzer
 {
-    // todo написать doc (добавив описание того, что у метода не может быть более одного тестового атрибута
-    // и не может быть сразу тестового и д-и атрибута
     internal static (IEnumerable<(TestAttribute, MethodBase)> tests,
         (IEnumerable<MethodBase> beforeAll,
         IEnumerable<MethodBase> afterAll,
